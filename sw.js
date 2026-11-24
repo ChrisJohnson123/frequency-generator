@@ -1,4 +1,4 @@
-const CACHE = "freq-gen-v1";
+const CACHE = "freq-gen-v2";
 const ASSETS = [
   "./",
   "./index.html",

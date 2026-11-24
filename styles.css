@@ -446,3 +446,103 @@ input[type="range"]::-moz-range-thumb {
     box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
   }
 }
+
+.mode-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin: 6px 0 14px;
+  padding: 4px;
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.mode-tab {
+  height: 44px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 650;
+  font-size: 15px;
+}
+
+.mode-tab[aria-selected="true"] {
+  background: var(--accent-dim);
+  color: var(--accent);
+}
+
+body.mode-obe .tone-only { display: none !important; }
+body.mode-tone .obe-only { display: none !important; }
+
+.obe-progress {
+  text-align: center;
+  border-color: rgba(126, 224, 200, 0.35);
+  background:
+    linear-gradient(180deg, rgba(126, 224, 200, 0.08), transparent 42%),
+    var(--card);
+  margin-bottom: 16px;
+}
+
+.obe-kicker {
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 650;
+}
+
+.obe-pulse-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+  margin: 8px 0 12px;
+}
+
+.obe-pulse {
+  font-family: "SF Pro Display", "SF Mono", ui-monospace, Menlo, monospace;
+  font-size: 40px;
+  font-weight: 560;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.obe-pulse-unit {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.bar {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.bar > i {
+  display: block;
+  height: 100%;
+  width: 0%;
+  border-radius: inherit;
+  background: var(--accent);
+  transition: width 0.2s linear;
+}
+
+.obe-time {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  min-height: 20px;
+}
+
+.obe-card .lead {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.note.lead { color: var(--ink); }

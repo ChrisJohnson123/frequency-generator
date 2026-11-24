@@ -8,7 +8,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Frequency">
-  <meta name="description" content="A phone-ready tone and frequency generator with waveforms, binaural beats, sweeps and a sleep timer.">
+  <meta name="description" content="A phone-ready tone and frequency generator with waveforms, binaural beats, sweeps, an OBE build-up mode and a sleep timer.">
   <title>Frequency Generator</title>
   <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png">
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
@@ -26,6 +26,11 @@
       <div class="status" id="status">Stopped</div>
     </header>
 
+    <div class="mode-tabs" role="tablist" aria-label="Mode">
+      <button type="button" class="mode-tab" id="tabTone" role="tab" aria-selected="true" aria-controls="tonePanel">Tone</button>
+      <button type="button" class="mode-tab" id="tabObe" role="tab" aria-selected="false" aria-controls="obePanel">OBE build-up</button>
+    </div>
+
     <section class="readout" aria-live="polite">
       <div class="hz-value" id="hzDisplay">440.0</div>
       <div class="hz-unit" id="hzUnit">Hz</div>
@@ -33,6 +38,16 @@
     </section>
 
     <canvas class="viz" id="viz" width="440" height="128" aria-hidden="true"></canvas>
+
+    <section class="section obe-progress obe-only" id="obeProgress" aria-live="polite" hidden>
+      <div class="obe-kicker" id="obePhase">Ready</div>
+      <div class="obe-pulse-row">
+        <div class="obe-pulse" id="obePulse">—</div>
+        <div class="obe-pulse-unit" id="obePulseUnit">pulses/s</div>
+      </div>
+      <div class="bar" id="obeBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="obeBarFill"></i></div>
+      <div class="obe-time" id="obeTime"></div>
+    </section>
 
     <div class="slider-block">
       <input id="freqSlider" type="range" min="0" max="1000" step="1" value="664" aria-label="Frequency, logarithmic scale">
@@ -66,14 +81,14 @@
       <input id="volSlider" type="range" min="0" max="100" step="1" value="30" aria-label="Volume">
     </div>
 
-    <section class="section">
+    <section class="section tone-only">
       <h2>Presets</h2>
       <div class="chips" id="commonPresets"></div>
       <p class="group-label">Solfeggio</p>
       <div class="chips" id="solfeggioPresets"></div>
     </section>
 
-    <section class="section">
+    <section class="section tone-only">
       <h2>Binaural beats</h2>
       <div class="toggle-row">
         <span>Split left and right</span>
@@ -93,7 +108,7 @@
       <p class="note">Use stereo headphones. The left ear hears the base tone and the right ear hears base plus the beat. Your brain perceives the difference as a beat. This is not a medical treatment.</p>
     </section>
 
-    <section class="section">
+    <section class="section tone-only">
       <h2>Frequency sweep</h2>
       <div class="fields thirds">
         <div class="field">
@@ -110,6 +125,55 @@
         </div>
       </div>
       <button type="button" class="action" id="sweepBtn">Start sweep</button>
+    </section>
+
+    <section class="section obe-only obe-card" id="obePanel" hidden>
+      <h2>OBE build-up</h2>
+      <p class="note lead">A carrier tone is pulsed, slowly at first, then faster and faster until the pulses melt into one steady tone. Use headphones, lie back, and keep the volume modest.</p>
+      <div class="fields">
+        <div class="field">
+          <label for="obeCarrier">Carrier Hz</label>
+          <input id="obeCarrier" type="number" inputmode="decimal" min="1" max="20000" step="0.1" value="100">
+        </div>
+        <div class="field">
+          <label for="obeBuild">Build-up minutes</label>
+          <input id="obeBuild" type="number" inputmode="decimal" min="0.05" max="60" step="0.1" value="15">
+        </div>
+        <div class="field">
+          <label for="obeStartPulse">Start pulses/s</label>
+          <input id="obeStartPulse" type="number" inputmode="decimal" min="0.5" max="20" step="0.1" value="2">
+        </div>
+        <div class="field">
+          <label for="obeEndPulse">End pulses/s</label>
+          <input id="obeEndPulse" type="number" inputmode="decimal" min="2" max="60" step="0.1" value="40">
+        </div>
+        <div class="field">
+          <label for="obeQuiet">Quiet start minutes</label>
+          <input id="obeQuiet" type="number" inputmode="decimal" min="0" max="10" step="0.5" value="0">
+        </div>
+        <div class="field">
+          <label for="obeBlend">Blend to solid (sec)</label>
+          <input id="obeBlend" type="number" inputmode="decimal" min="3" max="180" step="1" value="60">
+        </div>
+      </div>
+      <p class="group-label">Quiet start</p>
+      <div class="chips" id="obeQuietMode" role="group" aria-label="Quiet start style">
+        <button type="button" class="chip" data-quiet-mode="silence" aria-pressed="true">Silence</button>
+        <button type="button" class="chip" data-quiet-mode="tone" aria-pressed="false">Soft tone</button>
+      </div>
+      <p class="group-label">Build-up length</p>
+      <div class="chips" id="obeBuildChips"></div>
+      <div class="toggle-row">
+        <span>Add binaural beat</span>
+        <button type="button" class="switch" id="obeBinauralToggle" aria-pressed="false" aria-label="OBE binaural beats"></button>
+      </div>
+      <div class="fields">
+        <div class="field">
+          <label for="obeBeat">Beat Hz</label>
+          <input id="obeBeat" type="number" inputmode="decimal" min="0.1" max="40" step="0.1" value="6">
+        </div>
+      </div>
+      <p class="note">For relaxation only — there is no proof this induces out-of-body experiences.</p>
     </section>
 
     <section class="section">
