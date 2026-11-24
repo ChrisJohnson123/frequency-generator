@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0b0e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Frequency">
+  <meta name="description" content="A phone-ready tone and frequency generator with waveforms, binaural beats, sweeps and a sleep timer.">
+  <title>Frequency Generator</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <audio id="unlock" playsinline preload="auto" aria-hidden="true" style="position:absolute;width:0;height:0;opacity:0;pointer-events:none">
+    <source src="data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA" type="audio/wav">
+  </audio>
+
+  <main class="app">
+    <header class="top">
+      <div class="brand">Frequency</div>
+      <div class="status" id="status">Stopped</div>
+    </header>
+
+    <section class="readout" aria-live="polite">
+      <div class="hz-value" id="hzDisplay">440.0</div>
+      <div class="hz-unit" id="hzUnit">Hz</div>
+      <div class="stereo" id="stereoHint"></div>
+    </section>
+
+    <canvas class="viz" id="viz" width="440" height="128" aria-hidden="true"></canvas>
+
+    <div class="slider-block">
+      <input id="freqSlider" type="range" min="0" max="1000" step="1" value="664" aria-label="Frequency, logarithmic scale">
+      <div class="ticks" id="ticks" aria-hidden="true"></div>
+    </div>
+
+    <div class="fine">
+      <button type="button" class="nudge" data-delta="-1" aria-label="Decrease by 1 hertz">−1</button>
+      <button type="button" class="nudge" data-delta="-0.1" aria-label="Decrease by 0.1 hertz">−0.1</button>
+      <input id="freqInput" class="hz-input" type="number" inputmode="decimal" min="1" max="20000" step="0.1" value="440" aria-label="Exact frequency in hertz">
+      <button type="button" class="nudge" data-delta="0.1" aria-label="Increase by 0.1 hertz">+0.1</button>
+      <button type="button" class="nudge" data-delta="1" aria-label="Increase by 1 hertz">+1</button>
+    </div>
+
+    <div class="play-wrap">
+      <button type="button" class="play" id="play" aria-label="Play" aria-pressed="false">
+        <svg id="playIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l12-6.5-12-6.5z"/></svg>
+      </button>
+    </div>
+
+    <div class="row-label"><span>Waveform</span></div>
+    <div class="waves" id="waves" role="group" aria-label="Waveform">
+      <button type="button" class="wave-btn" data-wave="sine" aria-pressed="true">Sine</button>
+      <button type="button" class="wave-btn" data-wave="square" aria-pressed="false">Square</button>
+      <button type="button" class="wave-btn" data-wave="triangle" aria-pressed="false">Triangle</button>
+      <button type="button" class="wave-btn" data-wave="sawtooth" aria-pressed="false">Saw</button>
+    </div>
+
+    <div class="vol-row">
+      <div class="row-label"><span>Volume</span><strong id="volLabel">30%</strong></div>
+      <input id="volSlider" type="range" min="0" max="100" step="1" value="30" aria-label="Volume">
+    </div>
+
+    <section class="section">
+      <h2>Presets</h2>
+      <div class="chips" id="commonPresets"></div>
+      <p class="group-label">Solfeggio</p>
+      <div class="chips" id="solfeggioPresets"></div>
+    </section>
+
+    <section class="section">
+      <h2>Binaural beats</h2>
+      <div class="toggle-row">
+        <span>Split left and right</span>
+        <button type="button" class="switch" id="binauralToggle" aria-pressed="false" aria-label="Binaural beats"></button>
+      </div>
+      <div class="fields">
+        <div class="field">
+          <label for="baseInput">Base (left) Hz</label>
+          <input id="baseInput" type="number" inputmode="decimal" min="1" max="20000" step="0.1" value="200">
+        </div>
+        <div class="field">
+          <label for="beatInput">Beat Hz</label>
+          <input id="beatInput" type="number" inputmode="decimal" min="0.1" max="40" step="0.1" value="10">
+        </div>
+      </div>
+      <div class="chips" id="beatPresets" style="margin-top:10px"></div>
+      <p class="note">Use stereo headphones. The left ear hears the base tone and the right ear hears base plus the beat. Your brain perceives the difference as a beat. This is not a medical treatment.</p>
+    </section>
+
+    <section class="section">
+      <h2>Frequency sweep</h2>
+      <div class="fields thirds">
+        <div class="field">
+          <label for="sweepStart">Start Hz</label>
+          <input id="sweepStart" type="number" inputmode="decimal" min="1" max="20000" step="0.1" value="100">
+        </div>
+        <div class="field">
+          <label for="sweepEnd">End Hz</label>
+          <input id="sweepEnd" type="number" inputmode="decimal" min="1" max="20000" step="0.1" value="1000">
+        </div>
+        <div class="field">
+          <label for="sweepDur">Seconds</label>
+          <input id="sweepDur" type="number" inputmode="decimal" min="0.5" max="120" step="0.5" value="10">
+        </div>
+      </div>
+      <button type="button" class="action" id="sweepBtn">Start sweep</button>
+    </section>
+
+    <section class="section">
+      <h2>Sleep timer</h2>
+      <div class="chips" id="timerChips"></div>
+      <div class="fields" style="margin-top:10px">
+        <div class="field">
+          <label for="timerCustom">Custom minutes</label>
+          <input id="timerCustom" type="number" inputmode="decimal" min="0.5" max="180" step="0.5" placeholder="e.g. 7">
+        </div>
+      </div>
+      <div class="timer-left" id="timerLeft"></div>
+    </section>
+
+    <footer class="foot">
+      <p><strong>Hearing safety:</strong> start quietly and keep volume modest, especially with headphones. Long or loud tones can damage hearing. High frequencies can feel harsh even at low volume.</p>
+      <p>On iPhone, if you hear nothing, turn the Silent switch off (the orange switch means silent) or use headphones. Safari only starts audio after you tap Play.</p>
+      <p>This is a simple tone tool, not a medical device.</p>
+    </footer>
+  </main>
+  <script src="./app.js"></script>
+</body>
+</html>
